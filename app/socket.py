@@ -67,6 +67,6 @@ def send_current_game_info():
         'game': room.game.to_dict()
     })
 
-######################## error
+######################## error handling
 def handle_error(error_msg):
     socketio.emit('error', {"msg": error_msg})
