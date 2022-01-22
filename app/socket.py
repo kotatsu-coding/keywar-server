@@ -9,6 +9,7 @@ def handle_user_join(data):
     if user is None:
         handle_error('인원초과입니다')
         return
+    
     db.session.commit()
 
 @socketio.on('game start')
