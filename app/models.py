@@ -6,6 +6,13 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     color = db.Column(db.String(120), unique=True, nullable=False)
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'color': self.color
+        }
+
     def __repr__(self):
         return '<User %r>' % self.username
 
@@ -24,6 +31,9 @@ class Room:
             return user
         else:
             return None 
+    
+    def get_users(self):
+        return self.users
 
     def _pick_color(self):
         return Room.colors[len(self.users)]         
