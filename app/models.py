@@ -102,9 +102,9 @@ class Game:
     def generate_words():
         with open('words.txt') as f:
             raw_words = f.readlines()        
-        words = [Word(word) for word in raw_words]
-        print(f'# the words are {words}')
+        words = [Word(word.strip()) for word in raw_words]
         random.shuffle(words)
+        print(f'# the words are {words[:10]}')
         return words
 
     def __init__(self, game_time, users):
