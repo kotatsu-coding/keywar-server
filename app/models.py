@@ -1,14 +1,8 @@
 import random
-import json
 from datetime import datetime
-
 from flask import request
+from app import db 
 
-from app import db, socketio
-
-# class Word(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     value = db.Column(db.String(80), unique=True, nullable=False)
 
 class Word:
     def __init__(self, value):
@@ -123,26 +117,37 @@ class Game:
         self.current_word_idx = 0
         self.users = users
         self.score = 0
-        self.words[0].colorize(self.users)
+        self.current_word = Word(self.words[self.current_word_idx]).colorize(self.users)
+        self.sequence = []
+
+    def stroke_key(self, key, color):
+        if key == self.value[self.current_idx] \
+            and self.colors[self.current_idx] == color:
+            self.current_idx += 1
+            self.sequence.append(color)
+        else:
+            self.current_idx = 0
+        return self.current_idx
 
     def show_next_word(self):
         self.score += 1
         self.current_word_idx += 1
         if self.current_word_idx == len(self.words):
             self.current_word_idx = 0
-        word = self.words[self.current_word_idx]
-        return word.colorize(self.users)
+        self.current_word = Word(self.words[self.current_word_idx]).colorize(self.users)
+        return self.current_word
 
     def get_current_word(self):
-        return self.words[self.current_word_idx]
+        return self.current_word
     
     def to_dict(self):
         return {
             'game_time': self.game_time,
             'remaining_time': self.game_time - (datetime.now() - self.started_at).total_seconds(),
-            'current_word': self.words[self.current_word_idx].to_dict(),
+            'current_word': self.current_word.to_dict(),
             'users': [user.to_dict() for user in self.users],
-            'score': self.score 
+            'score': self.score,
+            'sequence': self.sequence
         }
 
 room = Room(2)
