@@ -10,7 +10,6 @@ app.config['SECRET_KEY'] = 'secret!'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-# socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 from app import models

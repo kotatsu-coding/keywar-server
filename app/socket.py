@@ -9,8 +9,7 @@ from app.models import room, User, Game, Word
 def disconnect():
     room.user_leave(request.sid)
     print(f'# user disconnected: {User.get_current_user()}')
-    print(room.users)
-    print('Client disconnected', request.sid)
+    print(f'# remaining users: {room.users}')
 
 ##################### lobby
 @socketio.on('user join')
@@ -38,6 +37,8 @@ def send_current_users(users):
 def handle_add_word(data):
     print(f"# new word added: {data['word']}")
     word = Word(data['word'])
+    msg = word.write_word_to_file()
+    handle_error(msg)
     # db.session.add(word)
     # db.session.commit()
 

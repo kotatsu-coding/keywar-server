@@ -29,6 +29,16 @@ class Word:
         else:
             self.current_idx = 0
         return self.current_idx
+
+    def write_word_to_file(self):
+        with open('words.txt') as f:
+            existing_words = f.read().splitlines()
+            if self.value not in existing_words:
+                f.write(f'\n{self.value}')
+                return f'# {self.value} added to word list'
+            else:
+                return f'# {self.value} is already in list'
+            
     
     def to_dict(self):
         return {
@@ -101,8 +111,7 @@ class Game:
     @staticmethod
     def generate_words():
         with open('words.txt') as f:
-            raw_words = f.readlines()        
-        words = [Word(word.strip()) for word in raw_words]
+            words = f.read().splitlines()    
         random.shuffle(words)
         print(f'# the words are {words[:10]}')
         return words
