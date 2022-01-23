@@ -72,7 +72,7 @@ class User(db.Model):
         return self.username
 
 class Room:
-    colors = ['red', 'blue', 'yellow', 'black']
+    colors = ['red', 'blue', 'purple', 'black']
 
     def __init__(self, num_users):
         self.users = []
