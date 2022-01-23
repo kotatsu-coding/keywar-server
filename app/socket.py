@@ -48,18 +48,18 @@ def handle_start(data):
     # num_users 일치 안하면 게임 시작x
     room.game = Game(data['game_time'], room.users)
     print('game start')
-    socketio.emit('server game start')
     send_current_game_info()
+    socketio.emit('server game start')
 
 @socketio.on('stroke key')
 def handle_stroke_key(key):
     print(f'# stroke key event: {User.get_current_user()} pushed {key}')
+    team = room.game.get_current_team()
     user = User.get_current_user()
-    word = room.game.get_current_word()
-    current_index = word.stroke_key(key, user.color)
+    word = team.get_current_word()
+    current_index = team.stroke_key(key, user.color)
     if current_index == len(word.value):
-        room.game.show_next_word()
-        db.session.commit()
+        team.show_next_word()
     send_current_game_info()
 
 def send_current_game_info():
