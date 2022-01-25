@@ -1,7 +1,80 @@
 import random
-from datetime import datetime
-from flask import request
+import datetime
+from flask_socketio import join_room, leave_room, emit
 from app import db 
+
+class Chat(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    body = db.Column(db.String(300))
+
+    def __init__(self, user, room, body):
+        self.user = user
+        self.room = room
+        self.body = body
+
+
+class Room(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    users = db.relationship('User', backref='room')
+    chats = db.relationship('Chat', backref='room')
+
+    def __init__(self):
+        pass
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'users': [user.to_dict() for user in self.users]
+        }
+
+    def join(self, user):
+        self.users.append(user)
+        user.room = self
+        join_room(self.id)
+        print(user, 'JOINED')
+        self.send_message('users', {
+            'users': [user.to_dict() for user in self.users]
+        })
+
+    def leave(self, user):
+        print(self.users)
+        self.users.remove(user)
+        leave_room(self.id)
+        self.send_message('users', {
+            'users': [user.to_dict() for user in self.users]
+        })
+
+    def send_message(self, event, data):
+        print(event, data)
+        emit(event, data, to=self.id)
+
+    def add_chat(self, user, body):
+        chat = Chat(user, self, body)
+
+
+    def handle_message(self, data):
+        pass
+
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sid = db.Column(db.String(100))
+    username = db.Column(db.String(80))
+    chats = db.relationship('Chat', backref='user')
+
+    room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
+
+    def __init__(self, sid, username=None):
+        self.sid = sid
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username
+        }
 
 
 class Word:
@@ -45,32 +118,8 @@ class Word:
         return self.value
 
 
-class User(db.Model):
-    id = db.Column(db.String(100), primary_key=True)
-    username = db.Column(db.String(80), nullable=False)
-    color = db.Column(db.String(120), nullable=False)
 
-    def __init__(self, id, username, color):
-        self.id = id
-        self.username = username
-        self.color = color
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'username': self.username,
-            'color': self.color        
-        }
-
-    @staticmethod
-    def get_current_user():
-        sid = request.sid
-        user = User.query.filter_by(id=sid).first()
-        return user
-
-    def __repr__(self):
-        return self.username
-
+'''
 class Room:
     colors = ['red', 'blue', 'purple', 'black']
 
@@ -182,3 +231,5 @@ class Game:
         }
 
 room = Room(4)
+
+'''

@@ -18,6 +18,10 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     socketio.init_app(app, cors_allowed_origins='*')
+
+    from app.socket import LobbyNamespace, RoomNamespace
+    socketio.on_namespace(LobbyNamespace('/lobby'))
+    socketio.on_namespace(RoomNamespace('/room'))
     return app
 
 app = create_app()

@@ -1,34 +1,53 @@
-from app import socketio, db
-from app.models import room, Word
+from app import db
+from app.models import User, Room
 from flask import request
-from app.socket.error import handle_error
+from app.game import current_user
+from flask_socketio import Namespace, emit
 
-@socketio.on('user join')
-def handle_user_join(data):
-    print(f"# user joined: {data['username']}")
-    user = room.user_join(request.sid, data['username'])
-    if user is None:
-        handle_error('인원초과입니다')
-        return
+class LobbyNamespace(Namespace):
+    def on_connect(self):
+        pass
 
-    db.session.add(user)
-    db.session.commit()
-    
-    current_users = room.get_users()
-    send_current_users(current_users)
-    #send_current_game_info()
+    def on_disconnect(self):
+        pass
 
-def send_current_users(users):
-    print("send current users")
-    socketio.emit('current users', {
-        'users': [user.to_dict() for user in users]
-    })
+    def on_get_rooms(self):
+        rooms = Room.query.all()
+        emit('rooms', {
+            'rooms': [room.to_dict() for room in rooms]
+        })
 
-@socketio.on('add word')
-def handle_add_word(data):
-    print(f"# new word added: {data['word']}")
-    word = Word(data['word'])
-    msg = word.write_word_to_file()
-    handle_error(msg)
-    # db.session.add(word)
-    # db.session.commit()
+    def on_create_user(self):
+        print('CREATE USER')
+        user = User(sid=request.sid)
+        db.session.add(user)
+        db.session.commit()
+
+        if user.username is None:
+            user.username = f'Guest_{user.id}'
+
+        db.session.commit()
+
+        emit('user', {
+            'user': user.to_dict()
+        })
+        rooms = Room.query.all()
+        emit('rooms', {
+            'rooms': [room.to_dict() for room in rooms]
+        }, broadcast=True, namespace='/lobby')
+
+    def on_create_room(self):
+        room = Room()
+        db.session.add(room)
+        db.session.commit()
+        
+        emit('room', {
+            'room_id': room.id
+        })
+
+        rooms = Room.query.all()
+        emit('rooms', {
+            'rooms': [room.to_dict() for room in rooms]
+        }, broadcast=True, namespace='/lobby')
+
+
