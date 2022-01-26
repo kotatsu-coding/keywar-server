@@ -58,17 +58,6 @@ class Team:
             self.current_word = self.show_next_word()
         return self.current_word.to_dict()
 
-        '''
-
-        self.sequence.append((color, key))
-        if key == self.current_word.value[self.current_word.current_idx] \
-            and self.current_word.colors[self.current_word.current_idx] == color:
-            self.current_word.current_idx += 1
-        else:
-            self.current_word.current_idx = 0
-        return self.current_word.current_idx
-        '''
-
     def show_next_word(self):
         self.score += 1
         self.current_word_idx += 1

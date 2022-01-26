@@ -3,6 +3,7 @@ from app.models import User, Room
 from flask import request
 from app.session import current_user, current_room
 from flask_socketio import Namespace, emit
+from app.game import game_manager
 
 class RoomNamespace(Namespace):
     def on_connect(self):
@@ -40,7 +41,9 @@ class RoomNamespace(Namespace):
             print('A', room.users)
             room.join(current_user)
             db.session.commit() 
-            emit('joined')
+            emit('joined', {
+                'user': current_user.to_dict()
+            })
 
     def on_get_chats(self):
         current_room.send_message('chats', {
@@ -62,13 +65,16 @@ class RoomNamespace(Namespace):
         })
 
     def on_game_start(self):
-        from app.game import game_manager
         game = game_manager.game_start(current_room)
         current_room.send_message('game_start')
         current_room.send_message('update_game', game.get_status())
 
+    def on_game_finished(self):
+        current_room.send_message('game_finished')
+        game = game_manager.get_game(current_room)
+        del game
+
     def on_stroke_key(self, data):
-        from app.game import game_manager
         key = data['key']
         game = game_manager.get_game(current_room)
         team = game.get_team(current_user.id)
