@@ -1,7 +1,7 @@
 from app import db
 from app.models import User, Room
+from app.session import current_user
 from flask import request
-from app.game import current_user
 from flask_socketio import Namespace, emit
 
 class LobbyNamespace(Namespace):
@@ -38,8 +38,10 @@ class LobbyNamespace(Namespace):
 
     def on_create_room(self):
         room = Room()
+        room.host = current_user
         db.session.add(room)
         db.session.commit()
+        print(room.users)
         
         emit('room', {
             'room_id': room.id

@@ -1,7 +1,7 @@
 from app import db
 from app.models import User, Room
 from flask import request
-from app.game import current_user, current_room
+from app.session import current_user, current_room
 from flask_socketio import Namespace, emit
 
 class RoomNamespace(Namespace):
@@ -9,16 +9,17 @@ class RoomNamespace(Namespace):
         pass
 
     def on_disconnect(self):
-        current_room.leave(current_user)
-        db.session.commit()
-        if len(current_room.users) == 0:
-            db.session.delete(current_room)
+        if current_room:
+            current_room.leave(current_user)
             db.session.commit()
+            if len(current_room.users) == 0:
+                db.session.delete(current_room)
+                db.session.commit()
 
-            rooms = Room.query.all()
-            emit('rooms', {
-                'rooms': [room.to_dict() for room in rooms]
-            }, broadcast=True, namespace='/lobby')
+                rooms = Room.query.all()
+                emit('rooms', {
+                    'rooms': [room.to_dict() for room in rooms]
+                }, broadcast=True, namespace='/lobby')
 
     def on_user(self, data):
         user_id = data['id']
@@ -33,9 +34,13 @@ class RoomNamespace(Namespace):
     def on_join(self, data):
         room_id = data['room_id']
         room = Room.query.filter_by(id=room_id).first()
-        room.join(current_user)
-        db.session.commit() 
-        emit('joined')
+        if len(room.users) >= 4:
+            emit('room_full')
+        else:
+            print('A', room.users)
+            room.join(current_user)
+            db.session.commit() 
+            emit('joined')
 
     def on_get_chats(self):
         current_room.send_message('chats', {
@@ -55,6 +60,21 @@ class RoomNamespace(Namespace):
                 'body': chat.body
             } for chat in current_room.chats]
         })
+
+    def on_game_start(self):
+        from app.game import game_manager
+        game = game_manager.game_start(current_room)
+        current_room.send_message('game_start')
+        current_room.send_message('update_game', game.get_status())
+
+    def on_stroke_key(self, data):
+        from app.game import game_manager
+        key = data['key']
+        game = game_manager.get_game(current_room)
+        team = game.get_team(current_user.id)
+        word = team.stroke_key(key, current_user.color)
+        current_room.send_message('update_game', game.get_status())
+
 
 
 

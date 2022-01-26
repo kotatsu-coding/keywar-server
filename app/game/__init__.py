@@ -1,1 +1,0 @@
-from app.game.game import current_user, current_room
