@@ -75,11 +75,15 @@ class RoomNamespace(Namespace):
         del game
 
     def on_stroke_key(self, data):
-        key = data['key']
+        current_word = data['current_word']
         game = game_manager.get_game(current_room)
         team = game.get_team(current_user.id)
-        word = team.stroke_key(key, current_user.color)
-        current_room.send_message('update_game', game.get_status())
+        team.validate_word(current_word)
+        if team.current_word.current_idx == len(team.current_word.value):
+            team.current_word = team.show_next_word()
+            current_room.send_message('update_game', game.get_status(), include_self=True)
+        else:
+            current_room.send_message('update_game', game.get_status(), include_self=False)
 
 
 

@@ -52,11 +52,6 @@ class Team:
         self.words = words
         self.current_word = Word(self.words[self.current_word_idx]).colorize(self.colors)
 
-    def stroke_key(self, key, color):
-        self.current_word.stroke_key(key, color)
-        if self.current_word.current_idx == len(self.current_word.value):
-            self.current_word = self.show_next_word()
-        return self.current_word.to_dict()
 
     def show_next_word(self):
         self.score += 1
@@ -69,6 +64,13 @@ class Team:
     def get_current_word(self):
         return self.current_word
     
+    def validate_word(self, word):
+        if word['current_idx'] == self.current_word.current_idx + 1:
+            self.current_word.current_idx += 1
+        elif word['current_idx'] == 0:
+            self.current_word.current_idx = 0
+        return self.current_word.to_dict()
+
     def to_dict(self):
         return {
             'current_word': self.current_word.to_dict(),
@@ -82,7 +84,6 @@ class Word:
         self.value = value
         self.colors = None
         self.current_idx = 0
-        self.sequence = []
 
     def colorize(self, colors):
         import random
@@ -90,22 +91,11 @@ class Word:
         self.colors = [random.choice(colors) for _ in range(len(self.value))]
         return self
 
-    def stroke_key(self, key, color):
-        self.sequence.append((color, key))
-        if key == self.value[self.current_idx] \
-            and self.colors[self.current_idx] == color:
-            self.current_idx += 1
-        else:
-            self.current_idx = 0
-
-        return self.to_dict()
-
     def to_dict(self):
         return {
             'value': self.value,
             'colors': self.colors,
-            'current_idx': self.current_idx,
-            'sequence': self.sequence
+            'current_idx': self.current_idx
         }
 
 

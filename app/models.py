@@ -49,8 +49,8 @@ class Room(db.Model):
             'users': [user.to_dict() for user in self.users]
         })
 
-    def send_message(self, event, data=None):
-        emit(event, data, to=self.id)
+    def send_message(self, event, data=None, include_self=True):
+        emit(event, data, to=self.id, include_self=include_self)
 
     def add_chat(self, user, body):
         chat = Chat(user, self, body)
@@ -84,34 +84,3 @@ class User(db.Model):
             'color': self.color,
             'is_host': self.hosting_room is not None
         }
-
-
-class Word:
-    def __init__(self, value):
-        self.value = value
-        self.colors = None
-        self.current_idx = 0
-    
-    def colorize(self, users):
-        self.current_idx = 0
-        source_colors = [user.color for user in users]
-        self.colors = [random.choice(source_colors) for _ in range(len(self.value))]
-        return self
-
-    def stroke_key(self, key, color):
-        if key == self.value[self.current_idx] \
-            and self.colors[self.current_idx] == color:
-            self.current_idx += 1
-        else:
-            self.current_idx = 0
-        return self.current_idx
-
-    def to_dict(self):
-        return {
-            'value': self.value,
-            'colors': self.colors,
-            'current_idx': self.current_idx
-        }
-
-    def __repr__(self):
-        return self.value
