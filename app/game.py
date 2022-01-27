@@ -41,6 +41,7 @@ class Game:
             words = f.read().splitlines()    
         random.shuffle(words)
         print(f'# the words are {words[:10]}')
+        words = [Word(word).colorize([0, 1]) for word in words]
         return words
 
 class Team:
@@ -50,15 +51,20 @@ class Team:
         self.colors = [user['color'] for user in self.users]
         self.score = 0
         self.words = words
-        self.current_word = Word(self.words[self.current_word_idx]).colorize(self.colors)
-
+        self.current_word = Word(self.words[self.current_word_idx].value)
+        self.current_word.colors = [
+            self.colors[color_idx] for color_idx in self.words[self.current_word_idx].colors
+        ]
 
     def show_next_word(self):
         self.score += 1
         self.current_word_idx += 1
         if self.current_word_idx == len(self.words):
             self.current_word_idx = 0
-        self.current_word = Word(self.words[self.current_word_idx]).colorize(self.colors)
+        self.current_word = Word(self.words[self.current_word_idx].value)
+        self.current_word.colors = [
+            self.colors[color_idx] for color_idx in self.words[self.current_word_idx].colors
+        ]
         return self.current_word
 
     def get_current_word(self):
