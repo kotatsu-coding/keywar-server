@@ -11,6 +11,16 @@ class LobbyNamespace(Namespace):
     def on_disconnect(self):
         pass
 
+    def on_user(self, data):
+        user_id = data['id']
+        user = User.query.filter_by(id=user_id).first()
+        user.sid = request.sid
+        db.session.commit()
+
+        emit('user', {
+            'user': user.to_dict()
+        })
+
     def on_get_rooms(self):
         rooms = Room.query.all()
         emit('rooms', {
