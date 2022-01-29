@@ -14,7 +14,7 @@ def create_app():
     app.config['CORS_HEADERS'] = 'Content-Type'
     db.init_app(app)
     migrate.init_app(app, db)
-    socketio.init_app(app, cors_allowed_origins='*')
+    socketio.init_app(app)
 
     from app.socket import LobbyNamespace, RoomNamespace
     socketio.on_namespace(LobbyNamespace('/lobby'))

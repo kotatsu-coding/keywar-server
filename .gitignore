@@ -3,9 +3,6 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,flask
 
 
-# DB stuffs
-*.db
-
 ### Flask ###
 instance/*
 !instance/.gitignore
