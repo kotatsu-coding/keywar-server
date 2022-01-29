@@ -67,7 +67,8 @@ class RoomNamespace(Namespace):
     def on_game_start(self):
         game = game_manager.game_start(current_room)
         current_room.send_message('game_start')
-        current_room.send_message('update_game', game.get_status())
+        current_room.send_message('update_game', game.teams[0].to_dict())
+        current_room.send_message('update_game', game.teams[1].to_dict())
 
     def on_game_finished(self):
         current_room.send_message('game_finished')
@@ -75,15 +76,16 @@ class RoomNamespace(Namespace):
         del game
 
     def on_stroke_key(self, data):
+        print('STROKE KEY', request.sid)
         current_word = data['current_word']
         game = game_manager.get_game(current_room)
         team = game.get_team(current_user.id)
         team.validate_word(current_word)
         if team.current_word.current_idx == len(team.current_word.value):
             team.current_word = team.show_next_word()
-            current_room.send_message('update_game', game.get_status(), include_self=True)
+            current_room.send_message('update_game', team.to_dict(), include_self=True)
         else:
-            current_room.send_message('update_game', game.get_status(), include_self=False)
+            current_room.send_message('update_game', team.to_dict(), include_self=False)
 
 
 

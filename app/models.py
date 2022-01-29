@@ -1,6 +1,7 @@
 import random
 import datetime
 from flask_socketio import join_room, leave_room, emit
+from flask import request
 from app import db 
 
 class Chat(db.Model):
@@ -50,6 +51,7 @@ class Room(db.Model):
         })
 
     def send_message(self, event, data=None, include_self=True):
+        print('SEND MESSAGE', request.sid)
         emit(event, data, to=self.id, include_self=include_self)
 
     def add_chat(self, user, body):
