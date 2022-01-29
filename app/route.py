@@ -2,4 +2,4 @@ from app import app
 
 @app.route('/')
 def index():
-    return 'Index Page'
+    return app.send_static_file('index.html')
