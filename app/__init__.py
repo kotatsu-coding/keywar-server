@@ -11,14 +11,14 @@ def create_app():
     app = Flask(__name__, static_folder='../build', static_url_path='/')
     app.config['SECRET_KEY'] = 'secret!'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-    app.config['CORS_HEADERS'] = 'Content-Type'
     db.init_app(app)
     migrate.init_app(app, db)
     socketio.init_app(app, cors_allowed_origins='*')
 
-    from app.socket import LobbyNamespace, RoomNamespace
+    from app.socket import LobbyNamespace, RoomNamespace, EntranceNamespace
     socketio.on_namespace(LobbyNamespace('/lobby'))
     socketio.on_namespace(RoomNamespace('/room'))
+    socketio.on_namespace(EntranceNamespace('/'))
     return app
 
 app = create_app()
