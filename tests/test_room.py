@@ -1,5 +1,5 @@
-from app import socketio, db
-from app.models import User, Room
+from app import db
+from app.models import Room
 
 
 class TestRoom:
@@ -11,7 +11,7 @@ class TestRoom:
 
 
     def test_join(self, lobby_user_client, room_user_client):
-        lobby_user_client.emit('create_room', namespace='/lobby')
+        lobby_user_client.emit('create_room', { 'capacity': 2 }, namespace='/lobby')
         received = lobby_user_client.get_received(namespace='/lobby')
         room_id = received[0]['args'][0]['room_id']
         assert room_id == 1
@@ -19,8 +19,8 @@ class TestRoom:
         room_user_client.emit('join', { 'room_id': room_id }, namespace='/room')
         received = room_user_client.get_received(namespace='/room')
         assert len(received) == 2
-        assert received[0]['name'] == 'users'
-        assert received[1]['name'] == 'joined'
+        assert received[0]['name'] == 'joined'
+        assert received[1]['name'] == 'room'
 
  
     def test_join_when_no_room(self, room_user_client):
@@ -44,7 +44,7 @@ class TestRoom:
 
 
     def test_disconnect(self, app, lobby_user_client, lobby_client, room_user_client):
-        lobby_user_client.emit('create_room', namespace='/lobby')
+        lobby_user_client.emit('create_room', { 'capacity': 2 }, namespace='/lobby')
         with app.app_context():
             assert len(Room.query.all()) == 1
         _ = lobby_client.get_received(namespace='/lobby')

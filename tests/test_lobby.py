@@ -38,7 +38,7 @@ class TestLobby:
 
 
     def test_create_room(self, lobby_user_client):
-        lobby_user_client.emit('create_room', namespace='/lobby')
+        lobby_user_client.emit('create_room', { 'capacity': 2 }, namespace='/lobby')
         received = lobby_user_client.get_received(namespace='/lobby')
         assert len(received) == 2
         assert received[0]['name'] == 'room'
@@ -46,7 +46,7 @@ class TestLobby:
         
 
     def test_create_room_with_no_user(self, lobby_client):
-        lobby_client.emit('create_room', namespace='/lobby')
+        lobby_client.emit('create_room', { 'capacity': 2 }, namespace='/lobby')
         received = lobby_client.get_received(namespace='/lobby')
         assert len(received) == 1
         assert received[0]['name'] == 'error'

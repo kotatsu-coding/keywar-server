@@ -1,6 +1,5 @@
 from app import db
-from app.models import User, Room
-from app.session import current_user
+from app.models import User
 from flask import request
 from flask_socketio import Namespace, emit
 

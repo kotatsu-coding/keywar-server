@@ -3,7 +3,16 @@ class GameManager:
         self.rooms = {}
 
     def game_start(self, room):
-        game = Game(room.users)
+        if room.capacity == 4:
+            game = Game([{
+                'users': room.users[:2]
+            }, {
+                'users': room.users[2:]
+            }])
+        else:
+            game = Game([{
+                'users': room.users
+            }])
         self.rooms[room.id] = game
         return game
 
@@ -13,14 +22,12 @@ class GameManager:
 game_manager = GameManager()
 
 class Game:
-    def __init__(self, users):
+    def __init__(self, teams):
         self.words = Game.generate_words()
-        self.teams = self.create_teams(users)
+        self.teams = self.create_teams(teams)
 
-    def create_teams(self, users):
-        team_1 = Team(self.words, users[:2])
-        team_2 = Team(self.words, users[2:])
-        return [team_1, team_2]
+    def create_teams(self, teams):
+        return [Team(self.words, team['users']) for team in teams]
 
     def get_team(self, user_id):
         for team in self.teams:
@@ -29,10 +36,10 @@ class Game:
                     return team
 
     def get_status(self):
-        return {
-            'team_1': self.teams[0].to_dict(),
-            'team_2': self.teams[1].to_dict()
-        }
+        status = {}
+        for i in range(len(self.teams)):
+            status[f'team_{i+1}'] = self.teams[i].to_dict()
+        return status
 
     @staticmethod
     def generate_words():

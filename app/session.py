@@ -1,7 +1,6 @@
 from werkzeug.local import LocalProxy
 from flask import _app_ctx_stack, request
 from app.models import User
-from sqlalchemy.sql.expression import null
 
 
 def get_current_user():

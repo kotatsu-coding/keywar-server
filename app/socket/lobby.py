@@ -32,9 +32,9 @@ class LobbyNamespace(Namespace):
             'rooms': [room.to_dict() for room in rooms]
         })
 
-    def on_create_room(self):
+    def on_create_room(self, data):
         if current_user:
-            room = Room()
+            room = Room(capacity=data['capacity'])
             room.host = current_user
             db.session.add(room)
             db.session.commit()

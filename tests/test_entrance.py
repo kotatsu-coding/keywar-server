@@ -1,6 +1,7 @@
 from app import socketio
 from app.models import User
 
+
 class TestEntrance:
     def test_enter_with_username(self, app):
         client = socketio.test_client(app, namespace='/')

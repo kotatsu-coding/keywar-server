@@ -1,10 +1,10 @@
 from app import db
 from app.models import User, Room
 from app.socket.error import handle_error
-from flask import request
 from app.session import current_user, current_room
-from flask_socketio import Namespace, emit
 from app.game import game_manager
+from flask import request
+from flask_socketio import Namespace, emit
 
 
 class RoomNamespace(Namespace):
@@ -43,15 +43,17 @@ class RoomNamespace(Namespace):
         if not room:
             handle_error('No such room')
             return
-        if len(room.users) >= 4:
+        if len(room.users) >= room.capacity:
             emit('room_full')
-        else:
-            print('A', room.users)
-            room.join(current_user)
-            db.session.commit() 
-            emit('joined', {
-                'user': current_user.to_dict()
-            })
+            return
+        room.join(current_user)
+        db.session.commit() 
+        emit('joined', {
+            'user': current_user.to_dict()
+        })
+        room.send_message('room', {
+            'room': room.to_dict()
+        })
 
     def on_get_chats(self):
         current_room.send_message('chats', {
@@ -75,8 +77,8 @@ class RoomNamespace(Namespace):
     def on_game_start(self):
         game = game_manager.game_start(current_room)
         current_room.send_message('game_start')
-        current_room.send_message('update_game', game.teams[0].to_dict())
-        current_room.send_message('update_game', game.teams[1].to_dict())
+        for team in game.teams:
+            current_room.send_message('update_game', team.to_dict())
 
     def on_game_finished(self):
         current_room.send_message('game_finished')

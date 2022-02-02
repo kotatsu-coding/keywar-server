@@ -23,26 +23,24 @@ class Room(db.Model):
     host_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     host = db.relationship('User', backref=db.backref('hosting_room', uselist=False), foreign_keys=[host_id])
     chats = db.relationship('Chat', backref='room')
+    capacity = db.Column(db.Integer, default=4, nullable=False)
 
     colors = ['red', 'blue', 'green', 'black']
 
-    def __init__(self):
-        pass
+    def __init__(self, capacity=4):
+        self.capacity = capacity
 
     def to_dict(self):
         return {
             'id': self.id,
-            'users': [user.to_dict() for user in self.users]
+            'users': [user.to_dict() for user in self.users],
+            'capacity': self.capacity
         }
 
     def join(self, user):
         user.color = self._pick_color()
         self.users.append(user)
         join_room(self.id)
-        print(user, 'JOINED')
-        self.send_message('users', {
-            'users': [user.to_dict() for user in self.users]
-        })
 
     def leave(self, user):
         self.users.remove(user)
