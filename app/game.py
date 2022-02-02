@@ -3,16 +3,7 @@ class GameManager:
         self.rooms = {}
 
     def game_start(self, room):
-        if room.capacity == 4:
-            game = Game([{
-                'users': room.users[:2]
-            }, {
-                'users': room.users[2:]
-            }])
-        else:
-            game = Game([{
-                'users': room.users
-            }])
+        game = Game(room.get_teams())
         self.rooms[room.id] = game
         return game
 
@@ -27,7 +18,7 @@ class Game:
         self.teams = self.create_teams(teams)
 
     def create_teams(self, teams):
-        return [Team(self.words, team['users']) for team in teams]
+        return [Team(team['id'], self.words, team['users']) for team in teams]
 
     def get_team(self, user_id):
         for team in self.teams:
@@ -52,9 +43,10 @@ class Game:
         return words
 
 class Team:
-    def __init__(self, words, users):
+    def __init__(self, team_id, words, users):
+        self.id = team_id
         self.current_word_idx = 0
-        self.users = [user.to_dict() for user in users]
+        self.users = users
         self.colors = [user['color'] for user in self.users]
         self.score = 0
         self.words = words
@@ -86,6 +78,7 @@ class Team:
 
     def to_dict(self):
         return {
+            'id': self.id,
             'current_word': self.current_word.to_dict(),
             'users': [user for user in self.users],
             'score': self.score

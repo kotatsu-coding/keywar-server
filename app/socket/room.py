@@ -75,10 +75,11 @@ class RoomNamespace(Namespace):
         })
 
     def on_game_start(self):
-        game = game_manager.game_start(current_room)
-        current_room.send_message('game_start')
-        for team in game.teams:
-            current_room.send_message('update_game', team.to_dict())
+        if len(current_room.users) == current_room.capacity:
+            game = game_manager.game_start(current_room)
+            current_room.send_message('game_start')
+            for team in game.teams:
+                current_room.send_message('update_team', { 'team': team.to_dict() })
 
     def on_game_finished(self):
         current_room.send_message('game_finished')
@@ -93,9 +94,9 @@ class RoomNamespace(Namespace):
         team.validate_word(current_word)
         if team.current_word.current_idx == len(team.current_word.value):
             team.current_word = team.show_next_word()
-            current_room.send_message('update_game', team.to_dict(), include_self=True)
+            current_room.send_message('update_team', { 'team': team.to_dict() }, include_self=True)
         else:
-            current_room.send_message('update_game', team.to_dict(), include_self=False)
+            current_room.send_message('update_team', { 'team': team.to_dict() }, include_self=False)
 
 
 

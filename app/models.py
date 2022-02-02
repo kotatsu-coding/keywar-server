@@ -33,9 +33,23 @@ class Room(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'users': [user.to_dict() for user in self.users],
+            'teams': self.get_teams(),
             'capacity': self.capacity
         }
+
+    def get_teams(self):
+        team_1 = {
+            'id': 1,
+            'users': [user.to_dict(team_id=1) for user in self.users if user.color in ['red', 'blue']]
+        }
+        team_2 = {
+            'id': 2,
+            'users': [user.to_dict(team_id=2) for user in self.users if user.color in ['green', 'black']]
+        }
+        if self.capacity == 2:
+            return [team_1]
+        else:
+            return [team_1, team_2]
 
     def join(self, user):
         user.color = self._pick_color()
@@ -50,7 +64,7 @@ class Room(db.Model):
         })
 
     def send_message(self, event, data=None, include_self=True):
-        print('SEND MESSAGE', request.sid)
+        print('SEND MESSAGE', request.sid, event)
         emit(event, data, to=self.id, include_self=include_self)
 
     def add_chat(self, user, body):
@@ -77,10 +91,13 @@ class User(db.Model):
     def __init__(self, sid, username=None):
         self.sid = sid
 
-    def to_dict(self):
-        return {
+    def to_dict(self, team_id=None):
+        data = {
             'id': self.id,
             'username': self.username,
             'color': self.color,
             'is_host': self.hosting_room is not None
         }
+        if team_id:
+            data['team_id'] = team_id
+        return data
