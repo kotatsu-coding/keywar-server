@@ -1,16 +1,14 @@
 from werkzeug.local import LocalProxy
 from flask import _app_ctx_stack, request
 from app.models import User
+from sqlalchemy.sql.expression import null
+
 
 def get_current_user():
     top = _app_ctx_stack.top
     if not hasattr(top, 'keywar_current_user'):
         user = User.query.filter_by(sid=request.sid).first()
-        print('USER', user)
-        if user is None:
-            top.keywar_current_user = None
-        else:
-            top.keywar_current_user = user
+        top.keywar_current_user = user
     return top.keywar_current_user
 
 def get_current_room():

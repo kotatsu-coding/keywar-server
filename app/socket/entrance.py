@@ -4,6 +4,7 @@ from app.session import current_user
 from flask import request
 from flask_socketio import Namespace, emit
 
+
 class EntranceNamespace(Namespace):
     def on_connect(self):
         pass

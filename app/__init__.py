@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO
 from flask_migrate import Migrate
 
+
 migrate = Migrate()
 socketio = SocketIO()
 db = SQLAlchemy()

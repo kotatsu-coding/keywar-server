@@ -5,6 +5,7 @@ from flask import request
 from flask_socketio import Namespace, emit
 from app.socket.error import handle_error
 
+
 class LobbyNamespace(Namespace):
     def on_connect(self):
         pass
@@ -32,9 +33,7 @@ class LobbyNamespace(Namespace):
         })
 
     def on_create_room(self):
-        if current_user == None:
-            handle_error('No user is set')
-        else:
+        if current_user:
             room = Room()
             room.host = current_user
             db.session.add(room)
@@ -48,5 +47,5 @@ class LobbyNamespace(Namespace):
             emit('rooms', {
                 'rooms': [room.to_dict() for room in rooms]
             }, broadcast=True, namespace='/lobby')
-
-
+        else:
+            handle_error('No user is set')

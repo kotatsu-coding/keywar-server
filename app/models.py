@@ -4,6 +4,7 @@ from flask_socketio import join_room, leave_room, emit
 from flask import request
 from app import db 
 
+
 class Chat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -63,7 +64,6 @@ class Room(db.Model):
         for user in self.users:
             remaining_colors.remove(user.color)
         return remaining_colors[0]
-
 
 
 class User(db.Model):

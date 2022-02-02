@@ -1,9 +1,11 @@
 from app import db
 from app.models import User, Room
+from app.socket.error import handle_error
 from flask import request
 from app.session import current_user, current_room
 from flask_socketio import Namespace, emit
 from app.game import game_manager
+
 
 class RoomNamespace(Namespace):
     def on_connect(self):
@@ -33,8 +35,14 @@ class RoomNamespace(Namespace):
         })
 
     def on_join(self, data):
+        if not current_user:
+            handle_error('No user is set')
+            return
         room_id = data['room_id']
         room = Room.query.filter_by(id=room_id).first()
+        if not room:
+            handle_error('No such room')
+            return
         if len(room.users) >= 4:
             emit('room_full')
         else:
