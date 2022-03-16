@@ -8,10 +8,10 @@ from app.socket.error import handle_error
 
 class LobbyNamespace(Namespace):
     def on_connect(self):
-        pass
+        print('LOBBY CONNECTED')
 
     def on_disconnect(self):
-        pass
+        print('LOBBY DISCONNECTED')
 
     def on_user(self, data):
         user_id = data['id']

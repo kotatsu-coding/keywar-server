@@ -19,8 +19,9 @@ def create_app(test_config=None):
     migrate.init_app(app, db)
     socketio.init_app(app, cors_allowed_origins='*')
 
-    from app.socket import LobbyNamespace, RoomNamespace, EntranceNamespace
-    socketio.on_namespace(EntranceNamespace('/'))
+    from app.socket import MainNamespace, LobbyNamespace, RoomNamespace, EntranceNamespace
+    socketio.on_namespace(MainNamespace('/'))
+    socketio.on_namespace(EntranceNamespace('/entrance'))
     socketio.on_namespace(LobbyNamespace('/lobby'))
     socketio.on_namespace(RoomNamespace('/room'))
     return app

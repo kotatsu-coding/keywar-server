@@ -6,10 +6,10 @@ from flask_socketio import Namespace, emit
 
 class EntranceNamespace(Namespace):
     def on_connect(self):
-        pass
+        print('ENTRANCE CONNECTED')
 
     def on_disconnect(self):
-        pass
+        print('ENTRANCE DISCONNECTED')
 
     def on_set_user(self, data=None):
         user = User(sid=request.sid)
