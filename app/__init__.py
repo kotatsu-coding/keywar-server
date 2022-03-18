@@ -22,9 +22,8 @@ def create_app(test_config=None):
     from app.api import bp as api_bp
     app.register_blueprint(api_bp, url_prefix='/api')
 
-    from app.socket import MainNamespace, LobbyNamespace, RoomNamespace, EntranceNamespace
+    from app.socket import MainNamespace, LobbyNamespace, RoomNamespace
     socketio.on_namespace(MainNamespace('/'))
-    socketio.on_namespace(EntranceNamespace('/entrance'))
     socketio.on_namespace(LobbyNamespace('/lobby'))
     socketio.on_namespace(RoomNamespace('/room'))
     return app

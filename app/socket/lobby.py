@@ -1,16 +1,13 @@
 from app import db
-from app.models import User, Room
-from app.session import current_user
+from app.models import Room
 from flask import request
 from flask_socketio import Namespace, emit
 from app.socket.error import handle_error
 
 
 class LobbyNamespace(Namespace):
-    def on_connect(self, data):
-        token = data['token']
-        if User.check_token(token) is None:
-            raise ConnectionRefusedError('unauthorized!')
+    def on_connect(self):
+        print('LOBBY CONNECTED')
 
     def on_disconnect(self):
         print('LOBBY DISCONNECTED')
