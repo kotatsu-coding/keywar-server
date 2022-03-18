@@ -3,9 +3,11 @@ from app.errors import error_response
 from app.models import User
 from app import db
 from flask import request
+from app.session import current_user
 
 @bp.route('/users', methods=['POST'])
 def enter():
+    print('ENTER', current_user)
     data = request.get_json()
     username = data['username'] if 'username' in data else None
     user = User(username=username)

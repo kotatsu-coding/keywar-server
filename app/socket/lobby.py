@@ -1,9 +1,9 @@
 from app import db
 from app.models import Room
-from flask import request
 from flask_socketio import Namespace, emit
 from app.socket.error import handle_error
-
+from flask import session
+ 
 
 class LobbyNamespace(Namespace):
     def on_connect(self):
@@ -13,13 +13,14 @@ class LobbyNamespace(Namespace):
         print('LOBBY DISCONNECTED')
 
     def on_get_rooms(self):
+        print('GET_ROOMS')
         rooms = Room.query.all()
         emit('rooms', {
             'rooms': [room.to_dict() for room in rooms]
         })
 
     def on_create_room(self, data):
-        current_user = None
+        current_user = session['user']
         if current_user:
             room = Room(capacity=data['capacity'])
             room.host = current_user

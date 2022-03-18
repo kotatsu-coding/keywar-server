@@ -2,11 +2,12 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO
 from flask_migrate import Migrate
-
+from flask_session import Session
 
 migrate = Migrate()
 socketio = SocketIO()
 db = SQLAlchemy()
+session = Session()
 
 def create_app(test_config=None):
     app = Flask(__name__, static_folder='../build', static_url_path='/')
@@ -18,6 +19,7 @@ def create_app(test_config=None):
     db.init_app(app)
     migrate.init_app(app, db)
     socketio.init_app(app, cors_allowed_origins='*')
+    session.init_app(app)
 
     from app.api import bp as api_bp
     app.register_blueprint(api_bp, url_prefix='/api')
@@ -29,6 +31,11 @@ def create_app(test_config=None):
     return app
 
 app = create_app()
+
+@app.before_request
+def before_request():
+    from app.session import current_user
+    print('BEFORE REQUEST', current_user)
 
 from app import models
 from app import route
