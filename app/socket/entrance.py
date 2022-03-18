@@ -12,7 +12,7 @@ class EntranceNamespace(Namespace):
         print('ENTRANCE DISCONNECTED')
 
     def on_set_user(self, data=None):
-        user = User(sid=request.sid)
+        user = User()
         if data is not None and 'username' in data:
             user.username = data['username']
         db.session.add(user)
@@ -24,6 +24,6 @@ class EntranceNamespace(Namespace):
         db.session.commit()
 
         emit('set_user', {
-            'user': user.to_dict()
+            'user': user.to_dict(include_token=True)
         })
         

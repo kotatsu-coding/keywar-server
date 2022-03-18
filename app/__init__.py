@@ -19,6 +19,9 @@ def create_app(test_config=None):
     migrate.init_app(app, db)
     socketio.init_app(app, cors_allowed_origins='*')
 
+    from app.api import bp as api_bp
+    app.register_blueprint(api_bp, url_prefix='/api')
+
     from app.socket import MainNamespace, LobbyNamespace, RoomNamespace, EntranceNamespace
     socketio.on_namespace(MainNamespace('/'))
     socketio.on_namespace(EntranceNamespace('/entrance'))

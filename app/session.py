@@ -1,3 +1,4 @@
+from uuid import uuid4
 from werkzeug.local import LocalProxy
 from flask import _app_ctx_stack, request
 from app.models import User
@@ -6,8 +7,8 @@ from app.models import User
 def get_current_user():
     top = _app_ctx_stack.top
     if not hasattr(top, 'keywar_current_user'):
-        user = User.query.filter_by(sid=request.sid).first()
-        top.keywar_current_user = user
+        # user = User.query.filter_by(sid=request.sid).first()
+        top.keywar_current_user = uuid4()
     return top.keywar_current_user
 
 def get_current_room():

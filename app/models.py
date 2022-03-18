@@ -1,5 +1,5 @@
-import random
 import datetime
+from uuid import uuid4
 from flask_socketio import join_room, leave_room, emit
 from flask import request
 from app import db 
@@ -80,18 +80,23 @@ class Room(db.Model):
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    sid = db.Column(db.String(100))
     username = db.Column(db.String(80))
+    token = db.Column(db.String(100))
     chats = db.relationship('Chat', backref='user')
     color = db.Column(db.String(100))
 
     room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
     room = db.relationship('Room', backref='users', foreign_keys=[room_id])
 
-    def __init__(self, sid, username=None):
-        self.sid = sid
+    def __init__(self, username=None):
+        self.username = username
+        self.token = str(uuid4())
 
-    def to_dict(self, team_id=None):
+    @staticmethod
+    def check_token(token):
+        return User.query.filter_by(token=token).first()
+
+    def to_dict(self, team_id=None, include_token=False):
         data = {
             'id': self.id,
             'username': self.username,
@@ -100,4 +105,6 @@ class User(db.Model):
         }
         if team_id:
             data['team_id'] = team_id
+        if include_token:
+            data['token'] = self.token
         return data
