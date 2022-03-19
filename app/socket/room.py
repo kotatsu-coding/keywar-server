@@ -52,7 +52,7 @@ class RoomNamespace(Namespace):
         room.join(current_user)
         db.session.commit() 
         emit('joined', {
-            'user': current_user.to_dict()
+            'user': current_user.to_dict(include_token=True)
         })
         room.send_message('room', {
             'room': room.to_dict()
