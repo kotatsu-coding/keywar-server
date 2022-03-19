@@ -7,9 +7,10 @@ class MainNamespace(Namespace):
         token = data['token']
         user = User.check_token(token)
         if user is None:
-            raise ConnectionRefusedError('Unauthorized!')
-        session['user'] = user
-        print('MAIN CONNECTED')
+            return False
+        else:
+            session['token'] = token
+            print('MAIN CONNECTED')
 
     def on_disconnect(self):
         print('MAIN DISCONNECTED')

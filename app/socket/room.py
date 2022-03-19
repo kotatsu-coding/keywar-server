@@ -3,13 +3,15 @@ from app.models import User, Room
 from app.socket.error import handle_error
 from app.session import current_user, current_room
 from app.game import game_manager
-from flask import request
+from flask import request 
 from flask_socketio import Namespace, emit
 
 
 class RoomNamespace(Namespace):
     def on_connect(self):
-        pass
+        if current_user is None:
+            raise ConnectionRefusedError('Unauthorized!')
+        print('ROOM CONNECTED')
 
     def on_disconnect(self):
         if current_room:
@@ -23,6 +25,7 @@ class RoomNamespace(Namespace):
                 emit('rooms', {
                     'rooms': [room.to_dict() for room in rooms]
                 }, broadcast=True, namespace='/lobby')
+        print('ROOM DISCONNECTED')
 
     def on_user(self, data):
         user_id = data['id']

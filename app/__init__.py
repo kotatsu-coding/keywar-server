@@ -32,11 +32,6 @@ def create_app(test_config=None):
 
 app = create_app()
 
-@app.before_request
-def before_request():
-    from app.session import current_user
-    print('BEFORE REQUEST', current_user)
-
 from app import models
 from app import route
 from app import socket

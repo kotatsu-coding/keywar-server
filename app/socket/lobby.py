@@ -1,10 +1,11 @@
 from app import db
 from app.models import Room
-from flask_socketio import Namespace, emit
 from app.socket.error import handle_error
+from app.session import current_user
+from flask_socketio import Namespace, emit
 from flask import session
- 
 
+ 
 class LobbyNamespace(Namespace):
     def on_connect(self):
         print('LOBBY CONNECTED')
@@ -20,7 +21,6 @@ class LobbyNamespace(Namespace):
         })
 
     def on_create_room(self, data):
-        current_user = session['user']
         if current_user:
             room = Room(capacity=data['capacity'])
             room.host = current_user
